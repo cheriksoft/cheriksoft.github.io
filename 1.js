@@ -78,8 +78,10 @@ function hideGroup(index) {
 }
 
 function loadGeoData() {
-    var pureCsv = $.ajax({ type: "GET",
+    var pureCsv = $.ajax({ 
+        type: "GET",
         url: "data.csv",
+        contentType: "text/csv; charset=utf-8",
         async: false
     }).responseText;
 
