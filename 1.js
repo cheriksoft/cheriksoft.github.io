@@ -19,14 +19,50 @@ function init() {
     });
 
     loadGeoData();
+}
 
+function showGroup(index) {
+    myMap.setCenter([41.20, 74.00], 6, { duration: 1000 });
+    for (var i = 0; i < placemarks[index].length; i++) {
+        placemarks[index][i].options.set({ visible: true });
+    }
+}
+
+function hideGroup(index) {
+    for (var i = 0; i < placemarks[index].length; i++) {
+        placemarks[index][i].options.set({ visible: false });
+    }
+}
+
+function loadGeoData() {
+    $.ajax({
+        type: "GET",
+        url: "data.txt",
+        dataType: 'text',
+        success: function (pureCsv) {
+            var commaSeparatedLines = pureCsv.split('\n');
+
+            for (var i = 2; i < commaSeparatedLines.length; i++) {
+                var line = commaSeparatedLines[i].split(';');
+
+                if (parseInt(line[5]) == 4 && parseInt(line[6]) == 41) {
+                    placemarks[getTypeIndex(line[7])].push(createPlacemark(line))
+                }
+            }
+
+            prepareMap();
+        }
+    });
+}
+
+function prepareMap() {
     putPlacemarksOnMap();
 
     var buttons = [];
     buttons[0] = new ymaps.control.Button('Пресные');
-	buttons[1] = new ymaps.control.Button('Минеральные');
-	buttons[2] = new ymaps.control.Button('Термальные');
-	buttons[3] = new ymaps.control.Button('Термальные минеральные');
+    buttons[1] = new ymaps.control.Button('Минеральные');
+    buttons[2] = new ymaps.control.Button('Термальные');
+    buttons[3] = new ymaps.control.Button('Термальные минеральные');
 
 
     var typeControls = new ymaps.control.Group({
@@ -62,38 +98,6 @@ function init() {
 
 
     myMap.controls.add(typeControls);
-}
-
-function showGroup(index) {
-    myMap.setCenter([41.20, 74.00], 6, { duration: 1000 });
-    for (var i = 0; i < placemarks[index].length; i++) {
-        placemarks[index][i].options.set({ visible: true });
-    }
-}
-
-function hideGroup(index) {
-    for (var i = 0; i < placemarks[index].length; i++) {
-        placemarks[index][i].options.set({ visible: false });
-    }
-}
-
-function loadGeoData() {
-    var pureCsv = $.ajax({ 
-        type: "GET",
-        url: "data.csv",
-        contentType: "text/csv; charset=utf-8",
-        async: false
-    }).responseText;
-
-    var commaSeparatedLines = pureCsv.split('\n');
-
-    for (var i = 2; i < commaSeparatedLines.length; i++) {
-        var line = commaSeparatedLines[i].split(';');
-
-        if (parseInt(line[5]) == 4 && parseInt(line[6]) == 41) {
-            placemarks[getTypeIndex(line[7])].push(createPlacemark(line))
-        }
-    }
 }
 
 function createPlacemark(line) {
